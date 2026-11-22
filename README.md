@@ -8,9 +8,15 @@ If you want to use [DDEV](https://ddev.com) (recommended) to run Drupal CMS loca
 
 1. Install DDEV following the [documentation](https://ddev.com/get-started/)
 2. Open the command line and `cd` to the root directory of this project
+    # mkdir cms-asmt && cd cms-asmt
+    # ddev config --project-type=drupal11 --docroot=web
+    # ddev start
+    # ddev composer create-project drupal/cms
 3. Run `ddev launch`
+4. Git setup (.gitignore and required files and folder)
 
-To use a different web root, run `ddev config --docroot=new_web_root` _before_ `ddev launch`.
+To use a different web root, run `ddev config --docroot=web` _before_ `ddev launch`.
+
 
 Drupal CMS has the same system requirements as Drupal core, so you can use your preferred setup to run it locally. [See the Drupal User Guide for more information](https://www.drupal.org/docs/user_guide/en/installation-chapter.html) on how to set up Drupal.
 

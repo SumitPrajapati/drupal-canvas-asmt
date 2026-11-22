@@ -26,23 +26,20 @@ Run commands from the project root:
 - Open the site with `ddev launch`.
 - Run Drush commands with `ddev drush <command>` such as `status`, `user:login`,  `cache:rebuild`, and `updatedb`.
 
-DDEV project config lives in `.ddev/config.yaml`. Use `.ddev/config.local.yaml` for machine-specific overrides.
+## Agents used
 
-## Common Drupal workflows
+Multiple AI agents used like Codex, Claude Agent:
 
-- Add a module with `ddev composer require drupal/<project>`, then  `ddev drush pm:enable --yes <module_machine_name>`, then `ddev drush cache:rebuild`.
-- Apply database updates after code changes with `ddev drush updatedb --yes`.
-- Import repository configuration into the site with `ddev drush config:import --yes`.
-- Export site configuration back to the repo with `ddev drush config:export --yes`.
+# Claude is returning the better response as compare others agents.
 
-## Guardrails
+# Prompts - 
 
-- Do not commit secrets or machine-local overrides such as `.env`, `settings.local.php`, or `.ddev/config.local.yaml`.
-- Do not commit `vendor/` or uploaded files under `web/sites/*/files`.
-- Do not edit Drupal core or contributed projects in place.
-- Put custom code in `web/modules/custom` and `web/themes/custom`.
+This prompt use in ChatGPT codex - Use this design image, identify reusable components, and define component specifications. Review and refine the specifications, making architectural decisions about component boundaries, reusability, and editor flexibility. The specification should be stored in component-specs.md as part of the submission.
 
-## References
+Claude - Please use home-page.png image to generate a Drupal CMS canvas component as mention below section in home-page.png. Attaching image for Audience Resources Section – four reusable audience cards for Makers, Buyers, Distributors, and Service Providers. This should be editable by autheticated users.
 
-- https://docs.ddev.com/en/stable/
-- https://www.drupal.org/docs/administering-a-drupal-site/configuration-management/workflow-using-drush
+I am not using any javascript framework like react, nextjs please provide code without any js framework
+
+Claude - Please use home-page.png image to generate a Drupal CMS canvas component as mention event hero section in home-page.png. This should be editable by autheticated users. i am not using any javascript framework like react, nextjs please provide code without any js framework.
+
+
