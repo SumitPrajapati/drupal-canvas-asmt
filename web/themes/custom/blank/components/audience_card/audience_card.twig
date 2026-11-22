@@ -1,0 +1,21 @@
+<article class="audience-card">
+  <div class="audience-card__media">
+    <div class="audience-card__photo">
+      {% if image.src %}
+        <img src="{{ image.src }}" alt="{{ image.alt }}" loading="lazy"{% if image.width %} width="{{ image.width }}"{% endif %}{% if image.height %} height="{{ image.height }}"{% endif %}>
+      {% endif %}
+    </div>
+    {% if icon.src %}
+      <span class="audience-card__icon">
+        <img src="{{ icon.src }}" alt="" width="36" height="36">
+      </span>
+    {% endif %}
+  </div>
+  <div class="audience-card__body">
+    <h3 class="audience-card__title">{{ title }}</h3>
+    {% if description %}
+      <p class="audience-card__description">{{ description }}</p>
+    {% endif %}
+    <a class="audience-card__link" href="{{ link_url }}">{{ link_text }}</a>
+  </div>
+</article>

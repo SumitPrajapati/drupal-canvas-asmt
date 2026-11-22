@@ -1,0 +1,78 @@
+{#
+/**
+ * @file
+ * Event hero component.
+ *
+ * Pass rendered Drupal Media/image field output into the hero_image slot.
+ */
+#}
+{% set variant = theme_variant|default('warm') %}
+{% set image_position = image_position|default('right') %}
+
+<section class="event-hero
+  event-hero--{{ variant|clean_class }}
+  event-hero--image-{{ image_position|clean_class }}">
+  {# Image first in source order: it is also first on mobile. #}
+  {% if image %}
+    <div class="event-hero__media">
+      {% include 'canvas:image' with image|merge({
+      loading: 'eager',
+      sizes: '(max-width: 767px) 100vw, 50vw',
+      class: 'event-hero__image'
+    }) only %}
+    </div>
+  {% endif %}
+
+  <div class="event-hero__content">
+    <div class="event-hero__content-inner">
+      {% if eyebrow %}
+        <p class="event-hero__eyebrow">{{ eyebrow }}</p>
+      {% endif %}
+
+      {% if title %}
+        <h1 class="event-hero__title">{{ title }}</h1>
+      {% endif %}
+
+      {% if summary %}
+        <div class="event-hero__summary">{{ summary }}</div>
+      {% endif %}
+
+      {% if date_text or venue_name or venue_location %}
+        <div class="event-hero__details">
+          {% if date_text %}
+            <div class="event-hero__detail">
+              <svg class="event-hero__detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                <path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"></path>
+              </svg>
+              <span>{{ date_text }}</span>
+            </div>
+          {% endif %}
+          {% if venue_name or venue_location %}
+            <div class="event-hero__detail">
+              <svg class="event-hero__detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path>
+                <circle cx="12" cy="10" r="2.5"></circle>
+              </svg>
+              <span>
+                {% if venue_name %}<span>{{ venue_name }}</span>{% endif %}
+                {% if venue_location %}<span>{{ venue_location }}</span>{% endif %}
+              </span>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+
+      {% if primary_cta_url or secondary_cta_url %}
+        <div class="event-hero__actions">
+          {% if primary_cta_url and primary_cta_label %}
+            <a class="event-hero__button event-hero__button--primary" href="{{ primary_cta_url }}">{{ primary_cta_label }}</a>
+          {% endif %}
+          {% if secondary_cta_url and secondary_cta_label %}
+            <a class="event-hero__button event-hero__button--secondary" href="{{ secondary_cta_url }}">{{ secondary_cta_label }}</a>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

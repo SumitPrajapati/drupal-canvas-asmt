@@ -1,0 +1,100 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/10.3.x/core/assets/schemas/v1/metadata.schema.json
+name: Event hero
+status: stable
+group: Event
+description: Responsive event hero with editorial copy, event details, calls to action, and a Drupal-rendered hero image.
+props:
+  type: object
+  properties:
+    eyebrow:
+      type: string
+      title: Eyebrow
+    title:
+      type: string
+      title: Title
+    summary:
+      type: string
+      title: Summary
+      examples: ['A longer description\nthat spans multiple lines']
+    date_text:
+      type: string
+      title: Event date
+    venue_name:
+      type: string
+      title: Venue name
+    venue_location:
+      type: string
+      title: Venue location
+    image:
+      type: object
+      $ref: json-schema-definitions://canvas.module/image
+      title: Event Hero Image
+      examples:
+        - src: https://placehold.co/800x450
+          alt: 'Event banner placeholder'
+          width: 800
+          height: 450
+    image_position:
+      type: string
+      title: Image Position
+      description: Choose the image position on desktop.
+      enum:
+        - left
+        - right
+      meta:enum:
+        left: Image Left
+        right: Image Right
+      examples:
+        - right
+    image_width:
+      title: Image Width (px)
+      type: integer
+      description: 'Optional custom width to override the uploaded image width.'
+      examples:
+        - 800
+    image_height:
+      title: Image Height (px)
+      type: integer
+      description: 'Optional custom height to override the uploaded image height.'
+      examples:
+        - 450
+    image_alt:
+      title: Alt Text Override
+      type: string
+      description: 'Overrides the default alt text from the Media Library.'
+      examples:
+        - 'Annual tech conference keynote'
+    image_title:
+      title: Image Title Attribute
+      type: string
+      description: 'Tooltip title attribute for the image.'
+      examples:
+        - 'Conference Banner'
+    primary_cta_label:
+      type: string
+      title: Primary CTA Label
+      examples:
+        - "Get Started"
+    primary_cta_url:
+      type: string
+      title: Primary CTA URL
+      format: uri-reference
+      examples:
+        - "/get-started"
+    secondary_cta_label:
+      type: string
+      title: Secondary CTA Label
+      examples:
+        - "Learn More"
+    secondary_cta_url:
+      type: string
+      title: Secondary CTA URL
+      format: uri-reference
+      examples:
+        - "/learn-more"
+
+    theme_variant:
+      type: string
+      title: Theme variant
+      enum: [warm]
+      default: warm

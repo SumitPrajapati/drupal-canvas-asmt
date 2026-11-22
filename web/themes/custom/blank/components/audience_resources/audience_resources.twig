@@ -1,0 +1,8 @@
+<section class="audience-resources">
+  {% if heading %}
+    <h2 class="audience-resources__heading">{{ heading }}</h2>
+  {% endif %}
+  <div class="audience-resources__grid">
+    {% block cards %}{% endblock %}
+  </div>
+</section>

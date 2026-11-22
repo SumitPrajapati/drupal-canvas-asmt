@@ -1,0 +1,51 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Audience Card
+status: stable
+group: Event
+description: Card with photo, icon, title, description and link for an audience (Maker, Buyer, Distributor, Service Provider).
+props:
+  type: object
+  required:
+    - title
+    - link_text
+    - link_url
+  properties:
+    image:
+      title: Photo
+      type: object
+      $ref: json-schema-definitions://canvas.module/image
+      examples:
+        - src: /sites/default/files/audience/card-maker.webp
+          alt: Hands breaking seeded crackers above a bowl of beet hummus
+          width: 900
+          height: 506
+    icon:
+      title: Icon
+      type: object
+      $ref: json-schema-definitions://canvas.module/image
+      examples:
+        - src: /sites/default/files/audience/icon-maker.png
+          alt: ''
+          width: 128
+          height: 128
+    title:
+      title: Title
+      type: string
+      examples:
+        - I’m a Maker
+    description:
+      title: Description
+      type: string
+      examples:
+        - Grow your brand and reach new markets.
+    link_text:
+      title: Link text
+      type: string
+      examples:
+        - See resources for makers
+    link_url:
+      title: Link URL
+      type: string
+      format: uri-reference
+      examples:
+        - /resources/makers

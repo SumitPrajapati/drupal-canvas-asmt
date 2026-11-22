@@ -1,0 +1,18 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Audience Resources
+status: stable
+group: Event
+description: Responsive section that holds Audience Card components.
+props:
+  type: object
+  properties:
+    heading:
+      title: Heading
+      description: Optional heading above the cards. Leave empty to hide it.
+      type: string
+      examples:
+        - Resources for every audience
+slots:
+  cards:
+    title: Cards
+    description: Add Audience Card components here. Add, remove, or reorder as needed.

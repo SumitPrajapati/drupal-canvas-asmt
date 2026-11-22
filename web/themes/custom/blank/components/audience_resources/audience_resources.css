@@ -1,0 +1,35 @@
+.audience-resources {
+  max-width: 84rem;
+  margin: 0 auto;
+  padding: 4rem 1.5rem;
+}
+
+.audience-resources__heading {
+  margin: 0 0 2rem;
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #111;
+}
+
+.audience-resources__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+/* Keeps cards equal height even if Canvas wraps each slot item */
+.audience-resources__grid > * {
+  height: 100%;
+}
+
+@media (min-width: 40rem) {
+  .audience-resources__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 64rem) {
+  .audience-resources__grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
