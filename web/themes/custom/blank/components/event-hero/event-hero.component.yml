@@ -30,10 +30,10 @@ props:
       $ref: json-schema-definitions://canvas.module/image
       title: Event Hero Image
       examples:
-        - src: https://placehold.co/800x450
+        - src: https://placehold.co/920x584
           alt: 'Event banner placeholder'
-          width: 800
-          height: 450
+          width: 920
+          height: 584
     image_position:
       type: string
       title: Image Position
@@ -51,13 +51,13 @@ props:
       type: integer
       description: 'Optional custom width to override the uploaded image width.'
       examples:
-        - 800
+        - 920
     image_height:
       title: Image Height (px)
       type: integer
       description: 'Optional custom height to override the uploaded image height.'
       examples:
-        - 450
+        - 584
     image_alt:
       title: Alt Text Override
       type: string
