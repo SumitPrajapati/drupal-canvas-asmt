@@ -8,9 +8,6 @@
 #}
 {% set variant = theme_variant|default('warm') %}
 {% set image_position = image_position|default('right') %}
-{# Font Awesome Free (solid) icon names. Unknown values fall back to the default. #}
-{% set date_icon = date_icon in ['calendar-days', 'calendar', 'calendar-check'] ? date_icon : 'calendar-days' %}
-{% set venue_icon = venue_icon in ['location-dot', 'map-pin', 'building'] ? venue_icon : 'location-dot' %}
 
 <section class="event-hero
   event-hero--{{ variant|clean_class }}
@@ -44,13 +41,18 @@
         <div class="event-hero__details">
           {% if date_text %}
             <div class="event-hero__detail">
-              <i class="event-hero__detail-icon fa-solid fa-{{ date_icon }}" aria-hidden="true"></i>
+              {% if date_icon %}
+                
+                <img src="{{ date_icon.src }}" alt="" width="36" height="36">
+              {% endif %}
               <span>{{ date_text }}</span>
             </div>
           {% endif %}
           {% if venue_name or venue_location %}
             <div class="event-hero__detail">
-              <i class="event-hero__detail-icon fa-solid fa-{{ venue_icon }}" aria-hidden="true"></i>
+              {% if venue_icon %}
+                <img src="{{ venue_icon.src }}" alt="" width="36" height="36">
+              {% endif %}
               <span>
                 {% if venue_name %}<span>{{ venue_name }}</span>{% endif %}
                 {% if venue_location %}<span>{{ venue_location }}</span>{% endif %}

@@ -26,16 +26,16 @@ props:
       type: string
       title: Venue location
     date_icon:
-      title: Icon
+      title: Date Icon
       type: object
       $ref: json-schema-definitions://canvas.module/image
       examples:
         - src: /sites/default/files/events/icon-maker.png
-          alt: 'date ocon'
+          alt: 'date icon'
           width: 128
           height: 128
     venue_icon:
-      title: Icon
+      title: Venue Icon
       type: object
       $ref: json-schema-definitions://canvas.module/image
       examples:
@@ -116,15 +116,3 @@ props:
       title: Theme variant
       enum: [warm]
       default: warm
-
-# Font Awesome Free (CDN). If your theme or the fontawesome module already
-# provides a library, replace this block with:
-#   libraryOverrides:
-#     dependencies:
-#       - THEME_OR_MODULE/fontawesome
-# libraryOverrides:
-#   css:
-#     theme:
-#       'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css':
-#         type: external
-#         minified: true
