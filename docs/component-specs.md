@@ -1,809 +1,324 @@
-# Component Specifications --- Event Homepage
+# Component Specifications: Event Homepage (Drupal CMS Canvas)
+
+| | |
+|---|---|
+| **Version** | 2.0 (reviewed and refined) |
+| **Status** | Draft for approval. Code must be generated only after sign-off (section 15). |
+| **Supersedes** | v1, the first AI-generated draft |
+| **Inputs** | `home-page.png` (reference comp), supplied card photos and icons, `task.md` |
+| **Target** | Drupal CMS **Canvas**, built with Single Directory Components (SDC): Twig + CSS + `component.yml` |
+| **Hard constraint** | No JavaScript framework (no React, Next.js, Preact). No JavaScript at all unless a requirement cannot be met with HTML and CSS. |
+
+---
 
 ## 1. Purpose and scope
 
-This document defines the reusable component system for the supplied
-event homepage design. It is intended to guide implementation in Drupal
-using **Single Directory Components (SDC)** and to give content editors
-control over content and media without exposing layout code.
-
-The page has two major regions:
-
-1.  **Event hero** --- eyebrow, event title, summary, date, venue, two
-    calls to action, and a food-focused hero image.
-2.  **Audience resources** --- a responsive collection of four audience
-    cards: Maker, Buyer, Distributor, and Service Provider.
-
-The specifications below describe the visible design, component
-boundaries, data contracts, editor controls, accessibility, responsive
-behavior, and acceptance criteria. They do not assume functionality that
-is not represented in the reference image.
-
-------------------------------------------------------------------------
-
-## 2. Design inventory
-
-  ------------------------------------------------------------------------------
-  Visible element   Proposed component     Reuse level         Rationale
-  ----------------- ---------------------- ------------------- -----------------
-  Full-width hero   `event-hero`           Page-section        Owns the hero's
-  region                                   component           two-column
-                                                               composition and
-                                                               responsive
-                                                               behavior.
-
-  Small uppercase   `eyebrow`              Primitive           Reusable overline
-  introductory line                                            treatment;
-                                                               content remains
-                                                               configurable.
-
-  Large event       `heading` / native     Primitive           Use semantic HTML
-  heading           heading element                            rather than a
-                                                               bespoke heading
-                                                               component unless
-                                                               the design system
-                                                               needs a shared
-                                                               heading API.
-
-  Event summary     `rich-text` / text     Primitive/content   Editorial copy
-                    field                  field               should not
-                                                               require a
-                                                               dedicated
-                                                               component.
-
-  Date with         `event-detail`         Reusable primitive  A date or time
-  calendar icon                                                value paired with
-                                                               an icon and
-                                                               accessible text.
-
-  Venue with        `event-detail`         Reusable primitive  Same structure as
-  location icon                                                date detail, with
-                                                               a different icon
-                                                               and value.
-
-  Register /        `button`               Design-system       Shared visual and
-  Explore buttons                          primitive           interaction
-                                                               contract for
-                                                               links styled as
-                                                               actions.
-
-  Audience card     `audience-card-grid`   Section component   Controls grid
-  collection                                                   layout, gaps,
-                                                               breakpoints, and
-                                                               card ordering.
-
-  Audience card     `audience-card`        Reusable component  Repeated four
-                                                               times with
-                                                               different content
-                                                               and imagery.
-
-  Card image        Image field / media    Content/media       Reuses Drupal
-                    item                   primitive           Media and image
-                                                               styles; avoid
-                                                               hard-coded image
-                                                               URLs.
-
-  Overlapping icon  `icon-badge`           Reusable primitive  Shared visual
-  disc                                                         treatment
-                                                               positioned at the
-                                                               image/content
-                                                               boundary.
-
-  Card title,       Card content fields    Content fields      These are data,
-  description, link                                            not independent
-                                                               layout
-                                                               components.
-  ------------------------------------------------------------------------------
-
-### Component boundary decisions
-
--   Keep `event-hero` as a composed section. It owns the hero layout,
-    not the internal semantics of every text element.
--   Keep `event-detail` independent because the date and venue share the
-    same visual pattern and may be reused on event teasers or detail
-    pages.
--   Keep `audience-card` independent from `audience-card-grid`. The card
-    owns its own image/content structure; the grid owns collection
-    layout.
--   Keep `icon-badge` a small visual primitive. Do not create separate
-    Maker, Buyer, Distributor, and Provider card templates.
--   Use Drupal core fields, Media, links, and semantic HTML for
-    straightforward content. Avoid wrapping every text element in a
-    custom component.
--   Do not make the whole card a single clickable element when it
-    contains a separate link. Use a clear, keyboard-accessible link for
-    the resource action.
-
-------------------------------------------------------------------------
-
-## 3. Component specifications
-
-## 3.1 `event-hero`
-
-**Type:** Composed page-section component\
-**Purpose:** Present the event identity, summary, event logistics, calls
-to action, and hero visual.
-
-### Structure
-
--   Outer section with a full-width background.
--   Inner constrained container.
--   Text/content column.
-    -   Eyebrow.
-    -   Main heading.
-    -   Summary.
-    -   Event details row.
-    -   CTA group.
--   Image/visual column.
--   On small screens, content and image stack in a deliberate order.
-
-### Suggested SDC interface
-
-  --------------------------------------------------------------------------
-  Prop               Type                          Required Default / notes
-  ------------------ ---------------- --------------------- ----------------
-  `eyebrow`          string                              No Short
-                                                            introductory
-                                                            line above the
-                                                            title.
-
-  `title`            string                             Yes Plain text;
-                                                            render as the
-                                                            page's primary
-                                                            `h1` when this
-                                                            is the page
-                                                            hero.
-
-  `summary`          string or safe                      No Keep formatting
-                     rich text                              limited; do not
-                                                            accept arbitrary
-                                                            unsafe markup.
-
-  `hero_image`       Drupal                             Yes Use a responsive
-                     image/media                            image style and
-                     reference                              meaningful
-                                                            alternative
-                                                            text.
-
-  `hero_image_alt`   string                     Conditional Required when
-                                                            image conveys
-                                                            information;
-                                                            empty alt is
-                                                            acceptable only
-                                                            when decorative.
-
-  `date_text`        string                              No Human-readable
-                                                            event date
-                                                            range.
-
-  `venue_name`       string                              No Venue name.
-
-  `venue_location`   string                              No City / region
-                                                            text.
-
-  `primary_cta`      link object                         No Usually
-                                                            registration.
-
-  `secondary_cta`    link object                         No Usually event
-                                                            exploration.
-
-  `theme_variant`    enum                                No `warm`
-                                                            (default); allow
-                                                            additional
-                                                            variants only
-                                                            when a real use
-                                                            case exists.
-  --------------------------------------------------------------------------
-
-**Slots / nested content:** Prefer explicit props for the two event
-details and two CTAs because their count and meaning are fixed in this
-design. If future event pages need arbitrary metadata, replace the fixed
-details with a repeatable `details` collection rather than adding more
-one-off props.
-
-### Visual behavior
-
--   Desktop: two-column composition, with the text column on the left
-    and large food image on the right.
--   Image fills its visual area using `object-fit: cover`; focal point
-    should be editor-configurable where the Drupal media/image field
-    supports it.
--   Text column has a comfortable maximum width to preserve readable
-    line lengths.
--   Hero background uses a warm cream token; image blends into the
-    section without a visible card frame.
--   CTA buttons are aligned horizontally when space permits and
-    wrap/stack on narrow screens.
--   The section must not rely on fixed pixel heights. Use content-driven
-    height and responsive spacing.
-
-### Editor flexibility
-
-Editors can update the eyebrow, title, summary, event date, venue, CTAs,
-image, alt text, and focal point. Editors should not control arbitrary
-column widths, font sizes, or CSS classes. The visual theme should be a
-constrained choice, not a free-form styling field.
-
-### Empty-state rules
-
--   Hide the eyebrow, summary, date detail, venue detail, or individual
-    CTA when its value is absent.
--   Do not render an empty metadata row.
--   The title and hero image are required for a published hero.
--   If the image is missing in draft content, show an editorial
-    placeholder in preview; do not publish a broken image.
-
-------------------------------------------------------------------------
-
-## 3.2 `event-detail`
-
-**Type:** Small reusable component\
-**Purpose:** Render a single event fact with a meaningful icon and
-readable value.
-
-### Suggested interface
-
-  -------------------------------------------------------------------------
-  Prop             Type                          Required Notes
-  ---------------- ---------------- --------------------- -----------------
-  `icon`           enum / icon                        Yes Constrained set,
-                   identifier                             e.g. `calendar`
-                                                          or `location`.
-
-  `label`          string                              No Accessible label
-                                                          when the visible
-                                                          value alone is
-                                                          not sufficiently
-                                                          clear.
-
-  `value`          string                             Yes Human-readable
-                                                          date or location.
-
-  `url`            link URL                            No Optional; only
-                                                          use when the
-                                                          detail is
-                                                          genuinely
-                                                          navigable.
-  -------------------------------------------------------------------------
-
-### Rules
-
--   Use an inline SVG or approved icon library with decorative icons
-    hidden from assistive technology when the text already communicates
-    the meaning.
--   Do not encode the date or venue only in an icon or image.
--   On desktop, date and venue may appear side by side. On mobile, allow
-    wrapping or vertical stacking.
--   Keep date formatting editorially controlled or use a Drupal date
-    field with a configured display format. Store dates as structured
-    date values when they are used for filtering, sorting, or event
-    logic.
-
-------------------------------------------------------------------------
-
-## 3.3 `button`
-
-**Type:** Design-system primitive\
-**Purpose:** Provide consistent action styling and accessible link
-behavior.
-
-### Suggested interface
-
-  ---------------------------------------------------------------------------
-  Prop                Type                          Required Notes
-  ------------------- ---------------- --------------------- ----------------
-  `label`             string                             Yes Visible action
-                                                             text.
-
-  `url`               URL                       Yes for link Use a real link
-                                                             for navigation.
-
-  `variant`           enum                                No `primary`,
-                                                             `secondary`;
-                                                             default
-                                                             `primary`.
-
-  `size`              enum                                No `medium` by
-                                                             default.
-
-  `open_in_new_tab`   boolean                             No Default false;
-                                                             only enable when
-                                                             editorially
-                                                             justified.
-  ---------------------------------------------------------------------------
-
-### Visual variants
-
--   **Primary:** orange fill, dark text, rounded pill-like corners.
--   **Secondary:** transparent / cream fill, dark outline, dark text.
--   Hover and focus states must be visible and consistent.
--   Use an anchor for navigation and a button only for an in-page
-    action. Do not use a clickable `div`.
-
-### Editor flexibility
-
-Editors choose the link and a constrained style variant. They cannot
-enter custom colors, padding, border radius, or arbitrary CSS classes.
-
-------------------------------------------------------------------------
-
-## 3.4 `audience-card-grid`
-
-**Type:** Section / collection-layout component\
-**Purpose:** Display a set of audience resource cards in a consistent
-responsive grid.
-
-### Suggested interface
-
-  ---------------------------------------------------------------------------
-  Prop                Type                          Required Notes
-  ------------------- ---------------- --------------------- ----------------
-  `heading`           string                              No Optional section
-                                                             heading; not
-                                                             visible in the
-                                                             supplied design.
-
-  `cards`             ordered                            Yes Each item
-                      collection of                          references an
-                      audience-card                          audience card
-                      items                                  content item or
-                                                             component data.
-
-  `columns_desktop`   enum                                No Default 4;
-                                                             constrain to
-                                                             supported layout
-                                                             options.
-  ---------------------------------------------------------------------------
-
-### Layout behavior
-
--   Desktop: four equal-width columns in one row at the reference
-    viewport.
--   Tablet: two columns where space allows.
--   Mobile: one column.
--   Maintain consistent gaps and card heights where practical; do not
-    force descriptions to clip.
--   Cards should follow source/editorial order. Drag-and-drop ordering
-    may be provided by the Drupal entity reference field.
--   If the number of cards changes, the grid adapts without a template
-    change.
-
-### Boundary
-
-The grid must not own card-specific image, title, description, icon, or
-link markup. It only places child cards and controls collection-level
-spacing and responsive columns.
-
-------------------------------------------------------------------------
-
-## 3.5 `audience-card`
-
-**Type:** Reusable content component\
-**Purpose:** Promote a resource destination for one audience type.
-
-### Suggested interface
-
-  -----------------------------------------------------------------------------
-  Prop             Type                          Required Notes
-  ---------------- ---------------- --------------------- ---------------------
-  `title`          string                             Yes E.g. "I'm a Maker".
-
-  `description`    string                             Yes Short supporting
-                                                          statement.
-
-  `image`          Drupal                             Yes Use a consistent card
-                   Media/image                            image style and crop
-                   reference                              ratio.
-
-  `image_alt`      string                     Conditional Meaningful alt text
-                                                          for informative
-                                                          images.
-
-  `icon`           enum / icon                        Yes E.g. `sprout`, `bag`,
-                   identifier                             `users`, `truck`; map
-                                                          to approved assets.
-
-  `link`           link object                        Yes Resource destination.
-
-  `link_label`     string                             Yes E.g. "See resources
-                                                          for makers".
-
-  `audience_key`   enum                                No `maker`, `buyer`,
-                                                          `distributor`,
-                                                          `service_provider`;
-                                                          useful for analytics
-                                                          or display variants,
-                                                          not for selecting
-                                                          separate templates.
-  -----------------------------------------------------------------------------
-
-### Internal structure
-
-1.  Card wrapper.
-2.  Image region.
-3.  Icon badge overlapping the image/content boundary.
-4.  Content region containing title, description, and resource link.
-
-### Visual behavior
-
--   White surface, subtle neutral border, rounded corners, and
-    consistent clipping.
--   Image spans the card width and uses a consistent aspect ratio.
--   Icon badge is a white circular surface with orange icon and overlaps
-    the lower image edge.
--   Content padding is consistent across cards.
--   Resource link is visually distinct and remains readable even when
-    descriptions wrap.
--   The card should not depend on the title being a specific audience
-    label.
-
-### Editor flexibility
-
-Editors can create, edit, reorder, and remove cards; change image, alt
-text, title, description, icon choice, link label, and destination. Icon
-choices must come from an approved icon set. The image style, badge
-geometry, border, and spacing remain design-system controlled.
-
-### Link behavior
-
-Use a descriptive anchor label. The card itself is not a second, nested
-link. If the card image is decorative because the title and description
-already provide the same information, use empty alt text; otherwise
-provide a useful description without repeating adjacent copy.
-
-------------------------------------------------------------------------
-
-## 3.6 `icon-badge`
-
-**Type:** Visual primitive\
-**Purpose:** Provide the small circular icon treatment used on audience
-cards.
-
-### Suggested interface
-
-  ----------------------------------------------------------------------------
-  Prop                 Type                          Required Notes
-  -------------------- ---------------- --------------------- ----------------
-  `icon`               approved icon                      Yes Required.
-                       identifier                             
-
-  `size`               enum                                No Use the
-                                                              card-badge size
-                                                              by default.
-
-  `accessible_label`   string                              No Only needed if
-                                                              the icon
-                                                              communicates
-                                                              information not
-                                                              already in text.
-  ----------------------------------------------------------------------------
-
-### Rules
-
--   Use a consistent circular white background and orange icon token.
--   The icon should be decorative when the adjacent card title already
-    identifies the audience.
--   Do not allow arbitrary uploaded icon files per card unless there is
-    a validated editorial requirement; a controlled icon selector keeps
-    visual quality and accessibility consistent.
-
-------------------------------------------------------------------------
-
-## 4. Drupal content and authoring model
-
-A practical Drupal model is:
-
-### Event content
-
-Use an `Event` content type (or the existing event content type if one
-already exists) with fields for:
-
--   Event title.
--   Eyebrow.
--   Summary.
--   Hero media reference.
--   Event start and end date/time (structured date field(s)).
--   Venue name.
--   Venue location.
--   Primary CTA link.
--   Secondary CTA link.
--   Optional constrained hero theme variant.
-
-The hero component should receive these values from the event entity
-through a paragraph/layout builder display or a node template, depending
-on the site's existing page-building approach.
-
-### Audience resource content
-
-Use an `Audience resource` content type or a Paragraph bundle if the
-cards are only ever embedded in one page and do not need independent
-URLs.
-
-Recommended fields:
-
--   Title.
--   Short description.
--   Card image media reference.
--   Image alternative text (or rely on the media image field's alt
-    text).
--   Icon selection from an approved list.
--   Resource link.
--   Link label.
--   Optional audience key.
-
-Reference these items from a multi-value entity reference field on the
-homepage or an `Audience resources` paragraph. This supports ordering
-and reuse without duplicating card content.
-
-### Paragraphs / Layout Builder decision
-
--   Prefer **Paragraphs** when editors need to assemble and reorder a
-    curated page section within a known set of layouts.
--   Prefer **Layout Builder** when the site already uses it as its page
-    composition system and editors need broader layout control.
--   Prefer a dedicated homepage content type with entity-reference
-    fields when the page structure is stable and should not be freely
-    rearranged.
--   Do not introduce both Paragraphs and Layout Builder solely for this
-    page. Choose the pattern already established in the project.
-
-### SDC organization
-
-A possible component directory structure:
-
-``` text
-components/
-  event-hero/
-    event-hero.component.yml
-    event-hero.twig
-    event-hero.css
-  event-detail/
-    event-detail.component.yml
-    event-detail.twig
-    event-detail.css
-  button/
-    button.component.yml
-    button.twig
-    button.css
-  audience-card-grid/
-    audience-card-grid.component.yml
-    audience-card-grid.twig
-    audience-card-grid.css
-  audience-card/
-    audience-card.component.yml
-    audience-card.twig
-    audience-card.css
-  icon-badge/
-    icon-badge.component.yml
-    icon-badge.twig
-    icon-badge.css
-```
-
-The exact location and naming should follow the Drupal theme's
-conventions. Keep each component's schema, Twig, and component-specific
-CSS together. Use shared design tokens for colors, spacing, typography,
-borders, and radii rather than duplicating raw values across components.
-
-------------------------------------------------------------------------
-
-## 5. Design tokens and visual guidance
-
-The reference image suggests the following token categories. Exact
-values should be sampled from the approved design file or established
-design system before implementation; values below are semantic
-recommendations, not measured pixel specifications.
-
-  -----------------------------------------------------------------------
-  Token                               Intended use
-  ----------------------------------- -----------------------------------
-  `color-brand-accent`                Orange CTA, icons, icon badge.
-
-  `color-hero-surface`                Warm cream hero background.
-
-  `color-surface`                     White card and page surfaces.
-
-  `color-text-primary`                Main headings and body copy.
-
-  `color-text-secondary`              Supporting card descriptions.
-
-  `color-border-subtle`               Card outlines and secondary button
-                                      border.
-
-  `font-display`                      High-contrast serif event headline.
-
-  `font-body`                         Sans-serif body copy, labels,
-                                      buttons, and card text.
-
-  `space-section`                     Vertical spacing between page
-                                      regions.
-
-  `radius-card`                       Rounded card corners.
-
-  `radius-pill`                       Rounded CTA buttons.
-
-  `shadow-subtle`                     Optional restrained elevation if
-                                      supported by the design system.
-  -----------------------------------------------------------------------
-
-Typography should be responsive and use fluid sizing where appropriate.
-The hero title is the strongest typographic element; card titles and
-descriptions should remain clearly subordinate.
-
-Do not infer exact font families, color hex values, or spacing
-measurements from a raster screenshot. Confirm those against the source
-design system or approved brand assets.
-
-------------------------------------------------------------------------
-
-## 6. Responsive behavior
-
-  -----------------------------------------------------------------------
-  Area              Wide desktop      Tablet            Mobile
-  ----------------- ----------------- ----------------- -----------------
-  Hero layout       Two columns; copy Two columns if    Stack content and
-                    left, image right readable;         image
-                                      otherwise stack   
-
-  Hero title        Large display     Reduced fluid     Compact, readable
-                    heading           size              heading
-
-  Event details     Inline row        Wrap as needed    Stack or wrap
-
-  CTAs              Inline            Wrap              Stack or wrap to
-                                                        available width
-
-  Audience grid     Four columns      Two columns       One column
-
-  Audience card     Consistent        Same ratio        Same ratio unless
-  image             landscape crop                      design testing
-                                                        requires
-                                                        adjustment
-
-  Card content      Consistent        Consistent        Comfortable touch
-                    padding           padding           spacing
-  -----------------------------------------------------------------------
-
-Use CSS Grid/Flexbox and content-based sizing. Avoid fixed widths that
-cause horizontal scrolling. Test at intermediate widths, not only the
-three nominal device categories.
-
-------------------------------------------------------------------------
-
-## 7. Accessibility and interaction requirements
-
--   Use one meaningful page-level `h1` for the event title; use
-    appropriate section and card heading levels.
--   Use semantic `section`, `article`, `ul`/`li` where appropriate, and
-    anchors for navigation.
--   All links and buttons must be keyboard accessible and have a visible
-    focus state.
--   Text and interactive controls must meet WCAG AA contrast
-    requirements.
--   Do not rely on orange color or icons alone to convey meaning.
--   Provide useful image alternative text when an image conveys
-    information. Use empty alt text for purely decorative imagery.
--   Hide decorative SVG icons from assistive technology
-    (`aria-hidden="true"` or equivalent).
--   Do not create nested interactive elements.
--   Ensure responsive order does not create confusing reading order.
--   Respect reduced-motion preferences if transitions or animations are
-    introduced.
-
-------------------------------------------------------------------------
-
-## 8. Content quality checks
-
-The supplied screenshot contains a potential content inconsistency that
-should be confirmed with the event owner before publication:
-
--   Heading: **"Winter FancyFaire\* 2028"**
--   Summary: says the community will "kick off 2027".
--   Event date: **January 17--19, 2027**.
-
-This specification preserves the visible copy rather than silently
-correcting it. The content editor or event owner should confirm the
-intended event year and update the relevant fields consistently.
-
-Also confirm:
-
--   Registration and Explore links point to the correct destinations.
--   Venue spelling and location are approved.
--   All card resource links are valid.
--   Image rights and alternative text are supplied.
-
-------------------------------------------------------------------------
-
-## 9. Performance and implementation guidance
-
--   Use Drupal Media entities for reusable images and responsive image
-    styles for the hero and cards.
--   Generate appropriately sized image derivatives; do not serve the
-    original large image to every viewport.
--   Set image dimensions or aspect ratio to reduce layout shift.
--   Lazy-load below-the-fold audience card images. Consider eager
-    loading / high fetch priority for the primary hero image when it is
-    the page's LCP element.
--   Keep component CSS scoped and avoid global selectors that leak into
-    other components.
--   Prefer Drupal render arrays and cache metadata propagation. Ensure
-    output varies and invalidates correctly when referenced event or
-    audience content changes.
--   Avoid embedding business logic or entity queries inside Twig
-    templates. Prepare component data in preprocess/build logic or a
-    suitable render integration.
--   Validate external URLs and use Drupal's link field handling rather
-    than manually concatenating URLs.
--   Do not add JavaScript for static layout behavior that CSS can
-    provide.
-
-------------------------------------------------------------------------
-
-## 10. Acceptance criteria
+Define the reusable component set for the two sections visible in the comp:
+
+1. **Event hero**: eyebrow, title, description, date, venue, two calls to action, and a food photo.
+2. **Audience resources**: four cards (Maker, Buyer, Distributor, Service Provider).
+3. **Audience card**: slots four cards (Maker, Buyer, Distributor, Service Provider).
+
+Out of scope: site header and navigation, footer, registration logic, search, and any content model outside Canvas (content types, Paragraphs, Layout Builder). Authors build the page in the Canvas editor, so **component props and slots are the data contract**.
+
+---
+
+## 2. Process and review log
+
+This spec follows the required spec-first workflow:
+
+1. **Analyse** the comp with AI and produce a draft spec (v1).
+2. **Review and refine** the draft, making architecture decisions (this document, v2).
+3. **Approve** the spec (section 15).
+4. **Generate code** with the coding agent using **only this spec and `home-page.png`** as input.
+5. **Verify** the result against the acceptance criteria (section 13).
+
+### Changes from v1, and why
+
+| # | v1 said | v2 decision | Reason |
+|---|---|---|---|
+| 1 | Authoring through content types, Paragraphs or Layout Builder | **Canvas props and slots only** | The task targets Canvas. A content model is out of scope and would not match the submitted components. |
+| 2 | Six components, including `icon-badge` | **Five components**. `icon-badge` is merged into `audience_card`. | The badge is used in one place and has no editorial meaning of its own. A separate component adds overhead without reuse. |
+| 3 | Hero date, venue and CTAs as fixed props | **Slots** that accept `event_detail` and `button` components | Editors can add, remove and reorder CTAs and details. Both are reusable on other pages. |
+| 4 | `audience-card-grid` with a `cards` collection prop and `columns_desktop` | **`audience_resources` section with a `cards` slot.** Column count is not editable. | Canvas composes through slots, and arrays of objects are not a supported prop shape. Fixed responsive columns keep layouts consistent. |
+| 5 | "Do not make the whole card clickable" | **One link per card, with its clickable area stretched over the card** (single tab stop) | It matches common card behaviour, and there are no nested interactive elements. |
+| 6 | Card icon chosen from an enum | **Icon as a Canvas image prop** (supplied icon assets) | The brief supplies the four icon files, and editors can swap them for new audience types. |
+| 7 | Hero icons unspecified | **`event_detail` icon is an enum of two inline SVGs** (`calendar`, `location`) | No icon files were supplied. Two fixed SVGs are lighter and need no uploads. |
+| 8 | "Do not infer colours from a screenshot" | **Colours sampled from the comp, recorded as tokens, and flagged for confirmation** | A spec needs concrete starting values. They can be changed in one place. |
+| 9 | Hero image eager or lazy left open | **Hero image eager and high priority. Card images lazy.** | The hero image is the likely LCP element. |
+| 10 | No instructions for the coding agent | **Implementation contract (section 14)** | The spec must stand alone as the agent's only input. |
+
+---
+
+## 3. Design analysis and traceability
+
+| Comp element | Component | Editable through |
+|---|---|---|
+| Hero section (peach background, text left, photo right) | `event_hero` | Props and slots below |
+| "PEOPLE. PRODUCTS. A BRIGHTER FOOD FUTURE." | `event_hero` | `eyebrow` |
+| "Winter FancyFaire\* 2028" | `event_hero` | `title`, `heading_level` |
+| Intro paragraph | `event_hero` | `description` |
+| Calendar icon + date | `event_detail` in the `details` slot | `icon`, `text` |
+| Pin icon + venue and city | `event_detail` in the `details` slot | `icon`, `text`, `text_secondary` |
+| "Register to Attend" (outline) | `button` in the `actions` slot, `secondary` | `label`, `url`, `variant` |
+| "Explore the Event" (filled orange) | `button` in the `actions` slot, `primary` | `label`, `url`, `variant` |
+| Food photo with fade into the background | `event_hero` | `image` |
+| Row of four cards | `audience_resources` | `heading` and the `cards` slot |
+| Each card (photo, icon disc, title, text, link) | `audience_card` | All props below |
+
+---
+
+## 4. Architecture decisions
+
+| ID | Decision | Alternatives considered | Rationale and trade-off |
+|---|---|---|---|
+| AD-1 | Five SDC components: `event_hero`, `event_detail`, `button`, `audience_resources`, `audience_card` | One monolithic hero and one monolithic cards block | Smaller parts are reusable. The cost is more components for authors to assemble, so a default composition is provided (section 6). |
+| AD-2 | Compose with **slots** (hero details, hero actions, section cards) | Fixed props per item | Slots give editors control over count and order. Fixed props would need a code change for a third CTA. |
+| AD-3 | **One `audience_card`** for all four audiences | Four templates, one per audience | The four cards differ only in content. |
+| AD-4 | Section and item are separate: `audience_resources` owns layout, `audience_card` owns card markup | One component with repeated fields | The grid works for any child, and a card works outside the grid. |
+| AD-5 | **`button` is a primitive** with two variants | Button styles inside the hero only | It is reused by the hero and any future section. Editors cannot pick custom colours. |
+| AD-6 | **Constrained editing**: copy, media, links, order and enumerated choices only | Free CSS classes, colour pickers, spacing controls | Protects design consistency and accessibility. |
+| AD-7 | **Styling with plain CSS and BEM class names**, with design tokens as CSS custom properties | A utility CSS framework, or CSS-in-JS | There is no build-step requirement, styles are scoped by naming, and tokens can be overridden by the theme. |
+| AD-8 | **Zero JavaScript** | A JS library for layout or interaction | Everything in the comp is achievable with HTML and CSS. |
+| AD-9 | Heading levels are props (`heading_level`) | Hard-coded levels | The component can sit under different parents without breaking the page outline. |
+| AD-10 | Card icon is an **image prop**. Hero detail icon is an **enum of inline SVGs** | One approach for both | Matches the supplied assets. Cards need swappable icons, but the hero has exactly two fixed icons. |
+
+---
+
+## 5. Component specifications
+
+Conventions for every component:
+
+- Machine names use `snake_case`. Prop names use `snake_case`.
+- "Canvas image" means the Canvas image prop shape (`src`, `alt`, `width`, `height`).
+- "URL" means `type: string`, `format: uri-reference`.
+- Every prop has a `title` for the editor sidebar, and an example value.
+- Optional output is **not rendered when empty**, with no empty wrappers.
+
+### 5.1 `event_hero`
+
+**Type:** Section component. **Purpose:** Present the event identity, summary, logistics, calls to action and photo.
+
+| Prop or slot | Type | Required | Default | Editor help |
+|---|---|---|---|---|
+| `eyebrow` | string | No | none | Short line above the title. Rendered uppercase by CSS. |
+| `title` | string | **Yes** | none | Event name. |
+| `heading_level` | enum `h1`, `h2` | No | `h1` | Use `h1` when this is the page's main heading. |
+| `description` | string | No | none | Plain text, about 300 characters. |
+| `image` | Canvas image | No | none | Hero photo. Alt text is empty if decorative. |
+| slot `details` | slot | No | none | Accepts `event_detail` components. |
+| slot `actions` | slot | No | none | Accepts `button` components. |
+
+**Markup:** `<section>`, then an inner container, then a content column containing `eyebrow` (`p`), the heading, `description` (`p`), a details wrapper and an actions wrapper. A separate `div` holds the photo.
+
+**Behaviour:**
+
+- Desktop (62rem and up): the content is on the left, with a maximum width of about 32rem. The photo is anchored right at about 56% of the section width and **fades into the background from its left edge** (CSS mask).
+- Below 62rem: the content stacks above the photo. The photo is 16:9 and fades in from the top.
+- The details wrapper renders only if the `details` slot has content. Likewise for `actions`.
+- Section height comes from its content, with a minimum of about 36.5rem on desktop. There are no fixed pixel heights.
+- The hero `img` is `loading="eager"` with `fetchpriority="high"`.
+
+
+### 5.2 `audience_resources`
+
+**Type:** Section component. **Purpose:** Responsive container for audience cards.
+
+| Prop or slot | Type | Required | Default | Editor help |
+|---|---|---|---|---|
+| `heading` | string | No | none | Optional heading. Not shown in the comp. |
+| `heading_level` | enum `h2`, `h3` | No | `h2` | Only used when `heading` is set. |
+| slot `cards` | slot | **Yes** | none | Accepts `audience_card` components. Add, remove and reorder. |
+
+**Behaviour:** One column below 40rem, two from 40rem, four from 64rem. Gap is 1.5rem. Container max width is 84rem with 1.5rem side padding. Cards in a row are **equal height**. The component also works if Canvas wraps each slot item in its own element.
+
+### 5.3 `audience_card`
+
+**Type:** Item component. **Purpose:** Promote one audience's resource page.
+
+| Prop | Type | Required | Default | Editor help |
+|---|---|---|---|---|
+| `image` | Canvas image | **Yes** | none | Card photo. Cropped to 16:9. |
+| `icon` | Canvas image | No | none | Square icon (128px or larger, transparent background preferred). Alt is always empty. |
+| `title` | string | **Yes** | none | e.g. "I'm a Maker". |
+| `heading_level` | enum `h2`, `h3`, `h4` | No | `h3` | Match the surrounding outline. |
+| `description` | string | No | none | One or two short sentences. |
+| `link_text` | string | **Yes** | none | e.g. "See resources for makers". |
+| `link_url` | URL | **Yes** | none | Resource page. |
+
+**Structure:**
+
+1. `article` wrapper with a 1px neutral border and 16px radius.
+2. Media area: photo at 16:9 with `object-fit: cover`, clipped to the top corners. An **icon disc** (64px white circle, icon about 36px) is positioned on the photo's bottom edge, left-aligned with 20px inset, and overlaps the content area by half.
+3. Body: title, description, and the link pinned to the bottom.
+
+**Link behaviour:** The link is the only interactive element. Its pseudo-element covers the whole card, so the card is clickable with a single tab stop. Hover shows a border highlight in the accent colour and an underlined link. The focus state is a visible outline on the card (`:has(a:focus-visible)`).
+
+**Empty states:** No photo leaves a neutral grey 16:9 area. No icon renders no disc. No description renders no paragraph. The card still has equal height.
+
+---
+
+## 6. Page composition in Canvas
+
+Default composition for the home page:
+
+1. `event_hero`
+   - `details` slot: `event_detail` (calendar, "January 17–19, 2027"), then `event_detail` (location, "Moscone Center", "San Francisco, CA").
+   - `actions` slot: `button` (secondary, "Register to Attend"), then `button` (primary, "Explore the Event").
+2. `audience_resources`
+   - `cards` props: four `audience_card` components in the order Maker, Buyer, Distributor, Service Provider.
+3. `audience_card`
+   - `cards` slot: four `audience_card` components in the order Maker, Buyer, Distributor, Service Provider.
+If the Canvas version supports saved patterns or sections, save the hero and the audience section as patterns so authors start from the full composition rather than empty slots.
+
+---
+
+## 7. Design tokens
+
+Values were **sampled or measured from the 1920 × 1067 comp**. Values marked *estimate* were not sampled. All must be confirmed against the design system.
+
+| Token (CSS custom property) | Value | Used for |
+|---|---|---|
+| `--color-hero-surface` | `#fff3e1` (sampled) | Hero background |
+| `--color-accent` | `#ffad00` (sampled) | Primary button, detail icons, card hover border |
+| `--color-text` | `#000000` (sampled) | Headings, body, buttons |
+| `--color-text-muted` | `#5f5f5f` (estimate) | Card description |
+| `--color-border` | `#d9d9d9` (estimate) | Card border |
+| `--color-surface` | `#ffffff` | Cards, icon disc |
+| `--font-display` | serif stack, e.g. DM Serif Display, Playfair Display, Georgia, serif | Hero title. The brand font is unknown and must be confirmed. |
+| `--font-body` | inherit from theme | Everything else |
+| `--radius-card` | `1rem` | Cards |
+| `--radius-pill` | `999px` | Buttons |
+
+Approximate comp measurements at 1920 px: content container 1344 px wide (288 px gutters), hero about 584 px tall, hero title about 56 px, cards about 316 × 355 px with 24 px gaps, icon disc 64 px.
+
+Each component declares tokens with fallbacks so it works standalone, and a theme can override them globally.
+
+---
+
+## 8. Responsive behaviour
+
+| Area | 64rem and up | 40rem to 63.99rem | Below 40rem |
+|---|---|---|---|
+| Hero layout | Two columns (62rem and up), photo faded in from the right | Content, then photo | Content, then photo |
+| Hero title | Fluid, up to about 3.5rem | Fluid | Fluid, minimum about 2.5rem |
+| Details row | Inline with wrap | Inline with wrap | Wraps or stacks |
+| Buttons | Inline with wrap | Inline with wrap | Wrap to full width as needed |
+| Audience grid | 4 columns | 2 columns | 1 column |
+
+No horizontal scrolling at any width. Test at intermediate widths as well.
+
+---
+
+## 9. Accessibility requirements
+
+- One `h1` per page. `event_hero` defaults to `h1`, and `heading_level` allows `h2`. Card titles default to `h3`.
+- Links are real `<a>` elements with descriptive text. No nested interactive elements and no clickable `div`s.
+- Visible keyboard focus on buttons and cards.
+- Text meets WCAG AA contrast. Confirm the orange button with black text and the muted grey on white once final colours are approved.
+- Decorative SVGs use `aria-hidden="true"`. Card icons use `alt=""`.
+- Informative images need alt text. Decorative images use empty alt.
+- Reading order matches visual order on mobile.
+- Transitions are limited to border colour and wrapped in `prefers-reduced-motion: no-preference`.
+
+---
+
+## 10. Performance
+
+- Hero image: eager loading, high fetch priority, explicit `width` and `height`.
+- Card images: `loading="lazy"`, explicit dimensions, consistent 16:9 crop.
+- Serve resized images (about 900 px wide for cards). Prefer WebP.
+- No JavaScript, no web fonts bundled by the components, and no external requests.
+- Component CSS is scoped by BEM prefix (`.event-hero`, `.event-detail`, `.button`, `.audience-resources`, `.audience-card`).
+
+---
+
+## 11. Editor flexibility and permissions
+
+| Editors can | Editors cannot |
+|---|---|
+| Change all copy, links and images | Enter custom CSS, colours, fonts or spacing |
+| Add, remove and reorder cards, details and buttons | Change grid column counts |
+| Choose button variant, icon (hero) and heading level | Upload arbitrary icons for the hero details |
+| Swap card icons | Change card geometry, border or radius |
+
+Authenticated users who have the Canvas page-editing and Media Library permissions can edit all of the above in the Canvas editor. The role and exact permission names vary by Canvas version and are configured at `/admin/people/permissions`.
+
+---
+
+## 12. Content issues and open questions
+
+1. **Date inconsistency in the comp.** The title says "Winter FancyFaire\* 2028", the intro says "kick off 2027", and the date reads "January 17–19, 2027". The spec **preserves the visible copy**. The event owner should confirm the year.
+2. **Brand fonts and exact colours** are not supplied. Tokens in section 7 are placeholders to confirm.
+3. **Link destinations** for the buttons and the four cards are not defined in the comp. Example paths are used.
+4. **Alt text** for the hero and card photos is to be supplied by editors.
+5. **Whole-card click target** (AD-5) is a design assumption. Confirm with the design owner.
+6. **Hero photo source.** Only the screenshot is available, so a cropped placeholder is used until the original image is supplied.
+
+---
+
+## 13. Acceptance criteria
 
 ### Event hero
+- [ ] Eyebrow, title, description, details, buttons and photo render when provided.
+- [ ] Each optional element is omitted cleanly when empty, with no empty wrappers or gaps.
+- [ ] `heading_level` changes the title tag, and defaults to `h1`.
+- [ ] Details and buttons can be added, removed and reordered in the Canvas editor.
+- [ ] The photo fades in from the right on wide screens and sits below the text on narrow screens.
+- [ ] Hero image loads eagerly with high priority.
+- [ ] Buttons show hover and keyboard focus states.
 
--   [ ] Displays eyebrow, title, summary, event date, venue, image, and
-    available CTAs.
--   [ ] Missing optional fields do not leave empty wrappers or awkward
-    gaps.
--   [ ] Image crop and focal point work across breakpoints.
--   [ ] Title is the correct semantic heading level.
--   [ ] Both CTA variants have hover and keyboard focus states.
--   [ ] Hero stacks cleanly on mobile without horizontal overflow.
+### Audience cards
+- [ ] One `audience_card` component renders all four cards, with no audience-specific templates.
+- [ ] All card fields are editable in the Canvas sidebar.
+- [ ] The grid shows 4, 2 and 1 columns at the defined breakpoints.
+- [ ] Cards in a row have equal height, with links aligned at the bottom.
+- [ ] The whole card is clickable through one link, and there are no nested links.
+- [ ] Cards remain readable with long or short titles and descriptions.
 
-### Audience resource cards
+### Technical
+- [ ] No JavaScript and no JavaScript framework anywhere in the submission.
+- [ ] Each component folder has `*.component.yml`, `*.twig` and `*.css`.
+- [ ] Every prop has a `title` and an example, and required props are declared.
+- [ ] No horizontal scroll from 320 px upward.
+- [ ] Content issues in section 12 are listed in the handover notes.
 
--   [ ] One card component renders all four audience types without
-    audience-specific templates.
--   [ ] Card image, icon, title, description, link label, and URL are
-    independently configurable.
--   [ ] Card order follows the editor-configured order.
--   [ ] Grid adapts from four to two to one column at the defined
-    breakpoints.
--   [ ] Cards remain readable when titles and descriptions vary in
-    length.
--   [ ] No nested links or inaccessible icon-only controls are present.
+---
 
-### Drupal authoring and maintainability
+## 14. Implementation contract (for the coding agent)
 
--   [ ] Editors can update content and media without editing Twig, CSS,
-    or code.
--   [ ] Icon choices and style variants are constrained to approved
-    options.
--   [ ] Reusable audience content can be referenced without duplicating
-    fields.
--   [ ] SDC prop schemas document required values and types.
--   [ ] Component CSS and Twig are colocated and scoped.
--   [ ] Cache tags/contexts are preserved through the Drupal render
-    pipeline.
--   [ ] The year/date inconsistency is resolved by the content owner
-    before production publication.
+**Inputs allowed:** this document and `home-page.png`, plus the supplied photos and icons. Do not add features, props or components that are not in this spec. If something is unclear, list it as a question instead of guessing.
 
-------------------------------------------------------------------------
+**Deliverables:**
 
-## 11. Final architecture decisions
+```text
+components/
+  event_hero/           event_hero.component.yml, event_hero.twig, event_hero.css
+  event_detail/         event_detail.component.yml, event_detail.twig, event_detail.css
+  button/               button.component.yml, button.twig, button.css
+  audience_resources/   audience_resources.component.yml, audience_resources.twig, audience_resources.css
+  audience_card/        audience_card.component.yml, audience_card.twig, audience_card.css
+assets/                 resized card photos and icons
+README.md               install steps, composition steps, token overrides
+```
 
-1.  **Use six reusable components:** `event-hero`, `event-detail`,
-    `button`, `audience-card-grid`, `audience-card`, and `icon-badge`.
-2.  **Keep content separate from presentation:** event and audience
-    information belongs in Drupal fields/entities; SDC components render
-    that data.
-3.  **Use one audience card implementation:** the four cards are content
-    variations, not four separate components.
-4.  **Separate collection layout from item presentation:** the grid
-    controls columns and spacing; each card controls its own visual
-    structure.
-5.  **Constrain editor choices:** editors control copy, media, links,
-    ordering, and approved icon/variant choices---not arbitrary CSS or
-    layout values.
-6.  **Use semantic primitives where custom components add no value:**
-    headings, paragraphs, lists, and links should remain native markup.
-7.  **Follow the existing Drupal page-building approach:** use the
-    project's established Paragraphs, Layout Builder, or fixed homepage
-    content model rather than introducing competing systems.
-8.  **Treat responsive behavior, accessibility, image performance, and
-    cache metadata as component requirements**, not later enhancements.
+**Rules:**
 
-This architecture provides a small, maintainable component library that
-reproduces the supplied design while allowing the homepage content to
-evolve independently of its presentation.
+- Twig, CSS and YAML only. No JavaScript, no frameworks, no build step.
+- Use Canvas-compatible props: strings, enums, booleans, URL strings (`format: uri-reference`), and images via `$ref: json-schema-definitions://canvas.module/image`. Use slots for composition.
+- Use exactly the prop names, types, defaults and enums in section 5.
+- Use BEM class names prefixed with the component name.
+- Declare design tokens as CSS custom properties with fallbacks (section 7).
+- Include a `title` and `examples` for every prop.
+- Parse-check the YAML files, and state clearly what was not tested.
+
+---
+
+## 15. Approval
+
+Complete this before any code is generated.
+
+- [ ] Component boundaries (AD-1 to AD-5) reviewed and approved.
+- [ ] Editor flexibility and constraints (section 11) reviewed and approved.
+- [ ] Tokens (section 7) and open questions (section 12) reviewed.
+- [ ] Reviewer name and date: ______________________

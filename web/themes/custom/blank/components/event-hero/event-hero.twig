@@ -8,6 +8,9 @@
 #}
 {% set variant = theme_variant|default('warm') %}
 {% set image_position = image_position|default('right') %}
+{# Font Awesome Free (solid) icon names. Unknown values fall back to the default. #}
+{% set date_icon = date_icon in ['calendar-days', 'calendar', 'calendar-check'] ? date_icon : 'calendar-days' %}
+{% set venue_icon = venue_icon in ['location-dot', 'map-pin', 'building'] ? venue_icon : 'location-dot' %}
 
 <section class="event-hero
   event-hero--{{ variant|clean_class }}
@@ -41,19 +44,13 @@
         <div class="event-hero__details">
           {% if date_text %}
             <div class="event-hero__detail">
-              <svg class="event-hero__detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                <path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"></path>
-              </svg>
+              <i class="event-hero__detail-icon fa-solid fa-{{ date_icon }}" aria-hidden="true"></i>
               <span>{{ date_text }}</span>
             </div>
           {% endif %}
           {% if venue_name or venue_location %}
             <div class="event-hero__detail">
-              <svg class="event-hero__detail-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"></path>
-                <circle cx="12" cy="10" r="2.5"></circle>
-              </svg>
+              <i class="event-hero__detail-icon fa-solid fa-{{ venue_icon }}" aria-hidden="true"></i>
               <span>
                 {% if venue_name %}<span>{{ venue_name }}</span>{% endif %}
                 {% if venue_location %}<span>{{ venue_location }}</span>{% endif %}
